@@ -1,0 +1,39 @@
+body {
+    background-color: black;
+    color: white;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.board-container {
+    margin: auto;
+    width: 200px;
+}
+
+table,
+td {
+    width: 30px;
+    height: 30px;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px;
+    /* margin: 0; */
+    /* text-align: center; */
+}
+
+.cell img {
+    width: 30px;
+    height: auto;
+    font-size: 1.5em;
+}
+
+.cell:hover {
+    background-color: rgb(210, 206, 206);
+    cursor: pointer;
+}
+
+
+.img {
+    height: 20px;
+    width: 10px;
+}
