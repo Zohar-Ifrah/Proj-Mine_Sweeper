@@ -7,18 +7,28 @@ body {
 
 .board-container {
     margin: auto;
-    width: 200px;
+    width: 450px;
+    /* height: 200px; */
 }
 
 table,
-td {
-    width: 30px;
-    height: 30px;
+/* td { */
+    /* width: 40px;
+    height: 40px;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px; */
+
+    /* margin: 0; */
+    /* text-align: center; */
+/* } */
+.cell{
+    width: 60px;
+    height: 60px;
     border: 1px solid white;
     background-color: gray;
     padding: 5px;
-    /* margin: 0; */
-    /* text-align: center; */
+    color: black;
 }
 
 .cell img {
@@ -28,7 +38,7 @@ td {
 }
 
 .cell:hover {
-    background-color: rgb(210, 206, 206);
+    /* background-color: rgb(210, 206, 206); */
     cursor: pointer;
 }
 
@@ -36,4 +46,16 @@ td {
 .img {
     height: 20px;
     width: 10px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0%;
+}
+
+.shown {
+    background-color: rgb(200, 198, 198);
+}
+p{
+    display: inline-block;
 }
