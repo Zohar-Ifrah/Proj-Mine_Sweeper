@@ -29,6 +29,8 @@ table,
     background-color: gray;
     padding: 5px;
     color: black;
+    font-size: 25px;
+    font-family: cursive;
 }
 
 .cell img {
@@ -58,4 +60,8 @@ footer {
 }
 p{
     display: inline-block;
+}
+button img{
+    height: 30px;
+    width: 30px;
 }
