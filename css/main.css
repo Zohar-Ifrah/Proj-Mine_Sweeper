@@ -1,37 +1,48 @@
+*{
+    box-sizing: border-box;
+}
 body {
-    background-color: black;
-    color: white;
+    /* background-color: black; */
+    /* color: white; */
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
 }
 
-.board-container {
+.game-display {
+    background-color: rgb(161, 128, 154);
+    /* height: 100px; */
+    width: 900px;
     margin: auto;
-    width: 450px;
-    /* height: 200px; */
 }
 
 table,
-/* td { */
-    /* width: 40px;
-    height: 40px;
+td {
+    border: 1px solid darkblue;
+    border-collapse: collapse;
     border: 1px solid white;
     background-color: gray;
-    padding: 5px; */
+    margin: auto;
+    cursor: pointer;
+}
 
-    /* margin: 0; */
-    /* text-align: center; */
-/* } */
-.cell{
-    width: 60px;
+.board-container td{
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    transition: 0.8s;
+    padding: 10px;
+    margin-left: 100px;
+}
+/* .cell{ */
+    /* width: 60px;
     height: 60px;
-    border: 1px solid white;
+    border: 1px solid white; 
     background-color: gray;
     padding: 5px;
     color: black;
     font-size: 25px;
-    font-family: cursive;
-}
+    font-family: cursive; */
+/* } */
 
 .cell img {
     width: 30px;
@@ -41,6 +52,13 @@ table,
 
 .cell:hover {
     /* background-color: rgb(210, 206, 206); */
+    cursor: pointer;
+}
+button {
+    background-color: rgb(88, 88, 211);
+    font-family: cursive;
+}
+button:hover {
     cursor: pointer;
 }
 
@@ -65,3 +83,70 @@ button img{
     height: 30px;
     width: 30px;
 }
+/* body {
+    background-color: black;
+    color: white;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.board-container {
+    margin: auto;
+    width: 450px; */
+    /* height: 200px; */
+/* } */
+
+/* table, */
+/* td { */
+    /* width: 40px;
+    height: 40px;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px; */
+
+    /* margin: 0; */
+    /* text-align: center; */
+/* } */
+/* .cell{
+    width: 60px;
+    height: 60px;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px;
+    color: black;
+    font-size: 25px;
+    font-family: cursive;
+}
+
+.cell img {
+    width: 30px;
+    height: auto;
+    font-size: 1.5em;
+}
+
+.cell:hover {
+    /* background-color: rgb(210, 206, 206); */
+    /* cursor: pointer; */
+/* } */
+
+
+/* .img {
+    height: 20px;
+    width: 10px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0%;
+}
+
+.shown {
+    background-color: rgb(200, 198, 198);
+}
+p{
+    display: inline-block;
+}
+button img{
+    height: 30px;
+    width: 30px;
+} */ 

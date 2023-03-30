@@ -61,8 +61,8 @@ function buildBoard() {
             }
         }
     }
-    getRandomMines(gLevel.MINES, board)
-    setMinesNegsCount(board)
+    // getRandomMines(gLevel.MINES, board)
+    // setMinesNegsCount(board)
     return board
 }
 
@@ -76,7 +76,7 @@ function setMinesNegsCount(board) {
 }
 
 function checkForNegsMines(board, cellI, cellJ) {
-    // if (board[cellI][cellJ].isMine) return   // if dont want to count minesAroundCount on MINES >> Rmove//
+    if (board[cellI][cellJ].isMine) return   // if dont want to count minesAroundCount on MINES >> Rmove//
     var minesAmount = 0
     for (var i = cellI - 1; i <= cellI + 1; i++) {
         if (i < 0 || i >= gLevel.SIZE) continue
@@ -106,11 +106,16 @@ function onCellMarked(elCell, i, j) {
 
 }
 // LEFT Click >> if not flaged reveals number or clean spots + clean negs. OR >> found mmine and end
-function onCellClicked(elCell, i, j) {                  // maybe later need elCell
-    if (!gGame.isOn) return
-    if (gBoard[i][j].isMarked) return //if Flaged cant reveal
+function onCellClicked(elCell, i, j) {                  ///////////////////////////////// maybe later need elCell
 
-    // if (elCell.classList.contains('mine')) renderCell(loc, MINE)   // if needs elCell
+    if (!gGame.isOn) return //if game off (lose / win) unable moves
+
+    if (!checkShown()) { // for first click:
+        getRandomMines(gLevel.MINES, gBoard, { i: i, j: j })
+        setMinesNegsCount(gBoard)
+    }
+
+    if (gBoard[i][j].isMarked) return //if Flaged cant reveal
 
     var currCellIdx = { i: i, j: j }
     if (gBoard[i][j].isMine) { // MINE Found
@@ -123,10 +128,11 @@ function onCellClicked(elCell, i, j) {                  // maybe later need elCe
         revealMines(getMines())
         elResetBtn.innerHTML = '<img src="img/lose.gif" alt="">'
         // if (gLives === 0)  //// for later adding//////////
-        return 
+        return
     }
-    if (gBoard[i][j].minesAroundCount) renderCell(currCellIdx, gBoard[i][j].minesAroundCount) // Spot with num
-    else { // reveals clean spot + reveals all around
+    if (gBoard[i][j].minesAroundCount) {// Spot with number
+        renderCell(currCellIdx, gBoard[i][j].minesAroundCount)
+    } else { // reveals clean spot + reveals all around
         // gBoard[i][j].isShown = true
         expandShown(gBoard, elCell, i, j)
     }
@@ -135,7 +141,7 @@ function onCellClicked(elCell, i, j) {                  // maybe later need elCe
     gBoard[i][j].isShown = true
     checkGameOver()
 }
-function expandShown(board, elCell, cellI, cellJ) { 
+function expandShown(board, elCell, cellI, cellJ) {
     for (var i = cellI - 1; i <= cellI + 1; i++) {
         if (i < 0 || i >= gLevel.SIZE) continue
         for (var j = cellJ - 1; j <= cellJ + 1; j++) {
@@ -149,9 +155,6 @@ function expandShown(board, elCell, cellI, cellJ) {
             }
         }
     }
-}
-
-function checkGameOver() {
 }
 
 function checkGameOver() {
@@ -177,13 +180,15 @@ function checkGameOver() {
     if (countShown === gLevel.SIZE ** 2 - gLevel.MINES) win()
 }
 
-function getRandomMines(maxMines, board) { // sets mines by gLevel SIZE/MINES
+function getRandomMines(maxMines, board, mineFreeIdx) { // sets mines by gLevel SIZE/MINES
     while (maxMines > 0) { // runs until got the number of mine requested
         for (var i = 0; i < gLevel.SIZE; i++) {
             for (var j = 0; j < gLevel.SIZE; j++) {
-                if (maxMines > 0 && Math.random() < gLevel.MINES / gLevel.SIZE ** 2) {
-                    maxMines--;
-                    board[i][j].isMine = true
+                if (mineFreeIdx.i !== i && mineFreeIdx.j !== j && !board[i][j].isMine) {
+                    if (maxMines > 0 && Math.random() < gLevel.MINES / gLevel.SIZE ** 2) {
+                        maxMines--
+                        board[i][j].isMine = true
+                    }
                 }
             }
         }
@@ -196,11 +201,11 @@ function win() {
     elResetBtn.innerHTML = '<img src="img/win.jpg" alt="">'
 }
 
-function resetGame(){
+function resetGame() {
     var elResetBtn = document.querySelector('.reset-btn')
     elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
     gGame.isOn = true
-    if (gLives > 0){  // If didnt lose all lives
+    if (gLives > 0) {  // If didnt lose all lives
         gBoard = buildBoard()
         renderBoard(gBoard)
     } else {
@@ -210,29 +215,28 @@ function resetGame(){
     }
 }
 
-function getMines(){
+function getMines() {
     var minesIdx = []
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
             if (gBoard[i][j].isMine) {
-                minesIdx.push({i: i, j:j})
+                minesIdx.push({ i: i, j: j })
             }
         }
     }
+    if (minesIdx.length === 0) return null
     return minesIdx
 }
 
-function revealMines(minesIdx){
-    var currCell =  {}
+function revealMines(minesIdx) {
+    var currCell = {}
     for (var i = 0; i < minesIdx.length; i++) {
-        currCell =  minesIdx[i]
-        // var elMine = document.querySelector(`.cell-${currCell.i}-${currCell.j}`)
-        // elMine.innerText = '<img src="img/mine.png" alt="">'
+        currCell = minesIdx[i]
         renderCell(currCell, MINE)
     }
 }
 
-function resetHTML(){
+function resetHTML() {
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
             if (gBoard[i][j].isMine) {
@@ -244,3 +248,38 @@ function resetHTML(){
     }
 }
 
+function checkShown() {
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            if (gBoard[i][j].isShown) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+function selectMode(elBtn) { //reset the board to the mode request 
+
+    // clearInterval(gInterval)
+    // resetGameTime()
+    switch (elBtn.innerText) {
+        case 'Beginner(16)':
+            gLevel.SIZE = 4
+            gLevel.MINES = 2
+            onInit()
+            break
+        case 'Medium(64)':
+            gLevel.SIZE = 8
+            gLevel.MINES = 14
+            onInit()
+            break
+        case 'Expert!(144)':
+            gLevel.SIZE = 12
+            gLevel.MINES = 32
+            onInit()
+            break
+        default:
+            break;
+    }
+}
