@@ -2,9 +2,14 @@
 const FLAG = '🚩'
 const MINE = '<img src="img/mine.png" alt="">'
 
-// var gSmallHint = []
 var gLives = 3
 var gBoard = []
+var gStartTime = null
+var gInterval = 0
+//Local Storage:
+var gUserFound = false
+var gNumOfPlayers = localStorage.length + 1
+var gCurrUserName = 'Guest'
 
 var gLevel = {
     SIZE: 8,
@@ -21,8 +26,10 @@ var gGame = {
 function onInit() {
     gBoard = buildBoard()
     renderBoard(gBoard)
+    updateBestScore()
+    getResetLives()
     gGame.isOn = true
-    console.log(gBoard)
+    displayModal(false)
 }
 
 // Render a <table> board to the page
@@ -61,8 +68,6 @@ function buildBoard() {
             }
         }
     }
-    // getRandomMines(gLevel.MINES, board)
-    // setMinesNegsCount(board)
     return board
 }
 
@@ -93,8 +98,7 @@ function checkForNegsMines(board, cellI, cellJ) {
 
 // RIGHT Click
 function onCellMarked(elCell, i, j) {
-    if (!gGame.isOn) return
-    if (gBoard[i][j].isShown) return
+    if (!gGame.isOn || gBoard[i][j].isShown) return
     if (gBoard[i][j].isMarked) {
         gBoard[i][j].isMarked = false
         elCell.innerText = ''
@@ -113,45 +117,51 @@ function onCellClicked(elCell, i, j) {                  ////////////////////////
     if (!checkShown()) { // for first click:
         getRandomMines(gLevel.MINES, gBoard, { i: i, j: j })
         setMinesNegsCount(gBoard)
+        gStartTime = Date.now()
+        gInterval = setInterval(updateGameTime, 85)
     }
 
     if (gBoard[i][j].isMarked) return //if Flaged cant reveal
-
     var currCellIdx = { i: i, j: j }
+
     if (gBoard[i][j].isMine) { // MINE Found
-        renderCell(currCellIdx, MINE)  // reveal Mine
-        var elLives = document.querySelector('.lives span')
-        var elResetBtn = document.querySelector('.reset-btn')
         gLives--
-        elLives.innerText = gLives
-        gGame.isOn = false
-        revealMines(getMines())
-        elResetBtn.innerHTML = '<img src="img/lose.gif" alt="">'
-        // if (gLives === 0)  //// for later adding//////////
+        if (gLives === 0) {
+            var elResetBtn = document.querySelector('.reset-btn')
+            elResetBtn.innerHTML = '<img src="img/lose.gif" alt="">'
+            gGame.isOn = false
+            revealAllMines(getMines())
+        } else {
+            var elLives = document.querySelector('.lives span')
+            elLives.innerText = gLives
+        }
+        clearInterval(gInterval)
+        renderCell(currCellIdx, MINE)  // reveal Mine
         return
     }
     if (gBoard[i][j].minesAroundCount) {// Spot with number
         renderCell(currCellIdx, gBoard[i][j].minesAroundCount)
     } else { // reveals clean spot + reveals all around
-        // gBoard[i][j].isShown = true
-        expandShown(gBoard, elCell, i, j)
+        expandShown(i, j);
+        elCell.innerHTML = ''
     }
     // anyway reveals current cell (if found mine ending game)
     elCell.classList.add('shown')
     gBoard[i][j].isShown = true
     checkGameOver()
 }
-function expandShown(board, elCell, cellI, cellJ) {
-    for (var i = cellI - 1; i <= cellI + 1; i++) {
-        if (i < 0 || i >= gLevel.SIZE) continue
-        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
-            if (j < 0 || j >= gLevel.SIZE) continue
-            if (i === cellI && j === cellJ) continue
-            if (!gBoard[i][j].minesAroundCount) {
+
+function expandShown(row, col) {
+    for (var i = row - 1; i <= row + 1; i++) {
+        for (var j = col - 1; j <= col + 1; j++) {
+            if (i < 0 || i >= gLevel.SIZE || j < 0 || j >= gLevel.SIZE || (i === row && j === col)) continue;
+            var cell = gBoard[i][j]
+            if (!cell.isShown && !gBoard[i][j].minesAroundCount) {
                 var elNegCell = document.querySelector(`.cell-${i}-${j}`)
                 elNegCell.classList.add('shown')
-                board[i][j].isShown = true
-                if (board[i][j].isMarked) elNegCell.innerText = ''
+                cell.isShown = true
+                elNegCell.innerText = ''
+                expandShown(i, j)
             }
         }
     }
@@ -196,12 +206,20 @@ function getRandomMines(maxMines, board, mineFreeIdx) { // sets mines by gLevel 
 }
 
 function win() {
-    console.log('Win!!!!!!!')
+    var elWinMsg = document.querySelector('.win-msg')
+    var finishTime = (Date.now() - gStartTime) / 1000;
+    elWinMsg.innerText = `you have finish the game in: ${parseInt(finishTime)}s!`
+    getWinTime() // if its new best score >> update score
+    displayModal(true)
+    clearInterval(gInterval)
     var elResetBtn = document.querySelector('.reset-btn')
     elResetBtn.innerHTML = '<img src="img/win.jpg" alt="">'
 }
 
 function resetGame() {
+    displayModal(false)
+    clearInterval(gInterval)
+    resetTime()
     var elResetBtn = document.querySelector('.reset-btn')
     elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
     gGame.isOn = true
@@ -228,7 +246,7 @@ function getMines() {
     return minesIdx
 }
 
-function revealMines(minesIdx) {
+function revealAllMines(minesIdx) {
     var currCell = {}
     for (var i = 0; i < minesIdx.length; i++) {
         currCell = minesIdx[i]
@@ -260,9 +278,11 @@ function checkShown() {
 }
 
 function selectMode(elBtn) { //reset the board to the mode request 
-
-    // clearInterval(gInterval)
-    // resetGameTime()
+    var elResetBtn = document.querySelector('.reset-btn')
+    elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
+    clearInterval(gInterval)
+    resetTime()
+    displayModal(false)
     switch (elBtn.innerText) {
         case 'Beginner(16)':
             gLevel.SIZE = 4
@@ -281,5 +301,121 @@ function selectMode(elBtn) { //reset the board to the mode request
             break
         default:
             break;
+    }
+}
+
+function updateGameTime() {
+    var currTime = (Date.now() - gStartTime) / 1000;
+    var gameTime = document.querySelector('.game-time span')
+    gameTime.innerText = (parseInt(currTime) + 's')
+}
+
+function resetTime() {
+    var gameTime = document.querySelector('.game-time span')
+    gameTime.innerText = 0 + 's'
+}
+
+function displayModal(isDisplay) {
+    var elModal = document.querySelector('.modal')
+    if (isDisplay) elModal.classList.remove('hidden')
+    else elModal.classList.add('hidden')
+}
+
+// This function define the current player name.
+// If user found in storage - use it, if not create new player to storage.
+function changeUserName() {
+    gUserFound = false
+    var nickName = prompt('Please Insert your nick name:')
+    var elNickName = document.querySelector('.user-name span')
+    elNickName.innerText = nickName
+    for (var i = 0; i < gNumOfPlayers + 1; i++) {
+        if (localStorage.getItem('nickName:' + [i + 1]) === nickName) {
+            alert(nickName + ' Welcome Back!')
+            gUserFound = true
+            break
+        }
+    }
+    if (!gUserFound) {
+        if (!nickName) nickName = 'Guest ' + gNumOfPlayers
+        localStorage.setItem('nickName:' + gNumOfPlayers, nickName);
+        alert('Welcome to Mine Sweeper game: ' + nickName)
+        gNumOfPlayers = i;
+    }
+    gCurrUserName = nickName
+}
+
+// This function return win time. If > best score update storage and game
+function getWinTime() {
+    var lvlStr = getGameLevel()
+    var bestTime = localStorage.getItem(`Best-Time: ${lvlStr}`)
+    var winTime = (Date.now() - gStartTime) / 1000
+    if (!bestTime || winTime < bestTime) {
+        var elBestPlayer = localStorage.getItem(`Best-player: ${lvlStr}`)
+        localStorage.setItem(`Best-Time: ${lvlStr}`, `${winTime}`)
+        localStorage.setItem(`Best-player: ${lvlStr}`, `${gCurrUserName}`)
+        var elBestScore = document.querySelector('.best-score span')
+        elBestScore.innerText = winTime
+    }
+    return winTime;
+}
+
+function updateBestScore() {
+    var lvlStr = getGameLevel()
+    var bestScore = localStorage.getItem(`Best-Time: ${lvlStr}`)
+    var elBestScore = document.querySelector('.best-score span')
+    elBestScore.innerText = bestScore
+}
+
+function getGameLevel() {
+    var lvlStr = ''
+    switch (gLevel.SIZE) {
+        case 4:
+            lvlStr = 'Beg'
+            break
+        case 8:
+            lvlStr = 'Med'
+            break
+        case 12:
+            lvlStr = 'Exp'
+            break
+        default:
+            break
+    }
+    return lvlStr
+}
+
+// This function reset lives according to the current lvl
+// also return number of max lives
+function getResetLives() {
+    var elLives = document.querySelector('.lives span')
+    switch (gLevel.SIZE) {
+        case 4:
+            gLives = 1
+            elLives.innerText = 1
+            break
+        case 8:
+            gLives = 2
+            elLives.innerText = 2
+            break
+        case 12:
+            gLives = 3
+            elLives.innerText = 3
+            break
+        default:
+            break
+    }
+    var maxLives = gLives
+    return maxLives
+}
+
+function darkModeToggle() {
+    var elBody = document.querySelector('body')
+    var elDarkMode = document.querySelector('dark-mode span')
+    if (elBody.style.backgroundColor === 'black') {
+        elBody.style.backgroundColor = 'white'
+        // elDarkMode.innerText = 'black'
+    } else {
+        elBody.style.backgroundColor = 'black'
+        // elDarkMode.innerText = 'white'
     }
 }

@@ -1,16 +1,14 @@
-*{
+* {
     box-sizing: border-box;
 }
+
 body {
-    /* background-color: black; */
-    /* color: white; */
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: sans-serif;
 }
 
 .game-display {
     background-color: rgb(161, 128, 154);
-    /* height: 100px; */
     width: 900px;
     margin: auto;
 }
@@ -25,43 +23,32 @@ td {
     cursor: pointer;
 }
 
-.board-container td{
+.board-container td {
     width: 70px;
     height: 70px;
     text-align: center;
     transition: 0.8s;
-    padding: 10px;
     margin-left: 100px;
 }
-/* .cell{ */
-    /* width: 60px;
-    height: 60px;
-    border: 1px solid white; 
-    background-color: gray;
-    padding: 5px;
-    color: black;
-    font-size: 25px;
-    font-family: cursive; */
-/* } */
 
 .cell img {
-    width: 30px;
+    width: 55px;
     height: auto;
     font-size: 1.5em;
 }
 
 .cell:hover {
-    /* background-color: rgb(210, 206, 206); */
     cursor: pointer;
 }
+
 button {
     background-color: rgb(88, 88, 211);
     font-family: cursive;
 }
+
 button:hover {
     cursor: pointer;
 }
-
 
 .img {
     height: 20px;
@@ -69,84 +56,71 @@ button:hover {
 }
 
 footer {
-    position: fixed;
-    bottom: 0%;
+    min-height: 5vh;
 }
 
 .shown {
     background-color: rgb(200, 198, 198);
 }
-p{
+
+p {
     display: inline-block;
 }
-button img{
+
+button img {
     height: 30px;
     width: 30px;
 }
-/* body {
-    background-color: black;
-    color: white;
-    text-align: center;
-    font-family: 'Courier New', Courier, monospace;
+
+.lives {
+    margin-top: 49px;
+    margin-right: -138px;
+    float: right;
+    padding: 7px;
+    background-color: rgb(182, 73, 164);
+    border: 2px solid black;
+
 }
 
-.board-container {
-    margin: auto;
-    width: 450px; */
-    /* height: 200px; */
-/* } */
-
-/* table, */
-/* td { */
-    /* width: 40px;
-    height: 40px;
-    border: 1px solid white;
-    background-color: gray;
-    padding: 5px; */
-
-    /* margin: 0; */
-    /* text-align: center; */
-/* } */
-/* .cell{
-    width: 60px;
-    height: 60px;
-    border: 1px solid white;
-    background-color: gray;
+.modal {
+    background-color: rgb(161, 128, 154);
+    border: 5px solid rgb(147, 14, 147);
+    position: absolute;
+    left: calc(50% - 133px);
+    top: 150px;
+    color: mediumvioletred;
+    font-size: larger;
+    font-family: -webkit-body;
     padding: 5px;
-    color: black;
-    font-size: 25px;
-    font-family: cursive;
 }
 
-.cell img {
-    width: 30px;
-    height: auto;
-    font-size: 1.5em;
+.hidden {
+    display: none;
 }
 
-.cell:hover {
-    /* background-color: rgb(210, 206, 206); */
-    /* cursor: pointer; */
-/* } */
-
-
-/* .img {
-    height: 20px;
-    width: 10px;
+.user-name {
+    float: left;
+    padding: 10px;
+    background-color: rgb(182, 73, 164);
 }
 
-footer {
-    position: fixed;
-    bottom: 0%;
+.best-score {
+    float: left;
+    margin-top: 49px;
+    margin-right: -40px;
+    margin-left: -105px;
+    padding: 2px;
+    background-color: rgb(182, 73, 164);
+    border: 2px solid black;
 }
 
-.shown {
-    background-color: rgb(200, 198, 198);
+.dark-mode {
+    float: right;
+    padding: 10px;
+    background-color: rgb(182, 73, 164);
 }
-p{
-    display: inline-block;
+
+.game-time {
+    font-family: sans-serif;
+    padding: 10px;
 }
-button img{
-    height: 30px;
-    width: 30px;
-} */ 

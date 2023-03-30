@@ -10,17 +10,22 @@
 </head>
 
 <body onload="onInit()">
+    <div class="modal hidden">
+        <h2>Congratulations!!</h2>
+        <p class="win-msg"></p>
+        <!-- <button class="save-record" onclick="onInit()">Save-Record</button> 2ADD -->
+      </div>
     <div class="game-display">
+        <button class="user-name" onclick="changeUserName()"> Player: <span>Guest</span></button>
+        <button class="dark-mode" onclick="darkModeToggle()"> Active: </span>Dark mode</button>
+        <p class="best-score">Best Score: <span></span></p>
+        <p class="lives">life: <span>3</span></p>
         <h1>Mine Sweeper</h1>
-        <!-- <button onclick="newGame()">New Game</button> -->
-        <p>Choose Your Level:</p>
         <button onclick="selectMode(this)">Beginner(16)</button>
         <button onclick="selectMode(this)">Medium(64)</button>
         <button onclick="selectMode(this)">Expert!(144)</button>
-        <p class="game-time">Game Time:</p>
-        <p class="lives">life: <span>3</span></p>
         <button onclick="resetGame()" class="reset-btn"><img src="img/happy.jpg" alt=""></button>
-        <p>time:00:00</p>
+        <p class="game-time">time: <span>0s</span></p>
         <table class="board-container">
 
         </table>
