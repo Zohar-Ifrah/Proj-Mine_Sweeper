@@ -39,7 +39,7 @@ function renderBoard(board) {
         strHTML += '<tr>\n'
         for (var j = 0; j < board[0].length; j++) {
             const currCell = board[i][j]
-            var cellClass = getClassName({ i: i, j: j }) // 'cell-3-4'
+            var cellClass = getClassName({ i: i, j: j }) //exmp: 'cell-3-4'
             strHTML += `\t<td class="cell ${cellClass}" 
                 onclick="onCellClicked(this,${i},${j})" 
                 oncontextmenu="onCellMarked(this, ${i}, ${j}); return false;">`
@@ -438,7 +438,7 @@ function bestScoreDisplay(){                           // Edit later!!!
     var begScore = localStorage.getItem('Best-Time: Beg')
     var medName = localStorage.getItem('Best-player: Med')
     var medScore = localStorage.getItem('Best-Time: Med')
-    var expName = localStorage.getItem('Best-Time: Exp')
+    var expName = localStorage.getItem('Best-player: Exp')
     var exptScore = localStorage.getItem('Best-Time: Exp')
     var scoreArray = [begName, begScore, medName, medScore, expName, exptScore]
     for (var i = 0; i < scoreArray.length; i++){
