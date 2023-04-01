@@ -27,16 +27,3 @@ function getRandomColor() {
     }
     return color;
 }
-
-// function getEmptyPos() {
-//     const emptyPoss = []
-//     for (var i = 0; i < gBoard.length; i++) {
-//         for (var j = 0; j < gBoard[0].length; j++) {
-//             if (gBoard[i][j].type !== WALL && !gBoard[i][j].gameElement) {
-//                 emptyPoss.push({ i, j }) // {i:1,j:3}
-//             }
-//         }
-//     }
-//     var randIdx = getRandomIntInclusive(0, emptyPoss.length - 1)
-//     return emptyPoss[randIdx]
-// }
