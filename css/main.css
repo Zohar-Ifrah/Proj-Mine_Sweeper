@@ -48,6 +48,8 @@ button {
 
 button:hover {
     cursor: pointer;
+    background-color: rgb(118, 118, 234);
+
 }
 
 .img {
@@ -73,13 +75,19 @@ button img {
 }
 
 .lives {
-    margin-top: 49px;
+    /* margin-top: 49px;
     margin-right: -138px;
     float: right;
     padding: 7px;
     background-color: rgb(182, 73, 164);
     border: 2px solid black;
-
+     */
+    margin-top: 5px;
+    /* margin-right: -138px; */
+    float: right;
+    padding: 5px;
+    background-color: rgb(242 186 94);
+    border: 2px solid black;
 }
 
 .modal {
@@ -101,23 +109,29 @@ button img {
 .user-name {
     float: left;
     padding: 10px;
-    background-color: rgb(182, 73, 164);
+    /* background-color: rgb(182, 73, 164); */
 }
 
 .best-score {
-    float: left;
+    /* float: left;
     margin-top: 49px;
     margin-right: -40px;
     margin-left: -105px;
     padding: 2px;
     background-color: rgb(182, 73, 164);
-    border: 2px solid black;
+    border: 2px solid black; */
+    display: grid;
+    float: left;
+    margin-top: 3px;
+    clear: left;
+    padding: 5px;
+    border: 2px solid black
 }
 
 .dark-mode {
     float: right;
     padding: 10px;
-    background-color: rgb(182, 73, 164);
+    /* background-color: rgb(182, 73, 164); */
 }
 
 .game-time {

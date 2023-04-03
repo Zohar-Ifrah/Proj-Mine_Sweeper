@@ -2,13 +2,14 @@
 const FLAG = '🚩'
 const MINE = '<img src="img/mine.png" alt="">'
 
-var gLives = 3
+var gLives = 2
 var gBoard = []
 var gStartTime = null
 var gInterval = 0
+
 //Local Storage:
 var gUserFound = false
-var gNumOfPlayers = localStorage.length + 1
+var gStorageLength = localStorage.length + 1
 var gCurrUserName = 'Guest'
 
 var gLevel = {
@@ -51,7 +52,7 @@ function renderBoard(board) {
     elBoard.innerHTML = strHTML
 }
 
-// Builds the board   Set the mines Call setMinesNegsCount() Return the created board
+// Builds the board. for this part only with objects (without mines)
 function buildBoard() {
     const size = gLevel.SIZE
     const board = []
@@ -80,6 +81,8 @@ function setMinesNegsCount(board) {
     }
 }
 
+// This function counts how many mines there are for each cell
+// sets the cell count value to the amount counted, for the gBoard
 function checkForNegsMines(board, cellI, cellJ) {
     if (board[cellI][cellJ].isMine) return
     var minesAmount = 0
@@ -96,7 +99,7 @@ function checkForNegsMines(board, cellI, cellJ) {
     board[cellI][cellJ].minesAroundCount = minesAmount
 }
 
-// RIGHT Click
+// RIGHT Click >> marking / unmarking FLAG + check win 
 function onCellMarked(elCell, i, j) {
     if (!gGame.isOn || gBoard[i][j].isShown || elCell.innerHTML === MINE) return
     if (gBoard[i][j].isMarked) {
@@ -109,13 +112,12 @@ function onCellMarked(elCell, i, j) {
     }
 
 }
-// LEFT Click >> if not flaged reveals number or clean spots + clean negs. OR >> found mmine and end
+// LEFT Click >> if not flaged reveals a number or clean spots + clean negs. OR >> found mine and end
 function onCellClicked(elCell, i, j) {
     if (!gGame.isOn) return //if game off (lose / win) unable moves
 
-
     if (!checkShown()) { // for first click:
-        getRandomMines(gLevel.MINES, gBoard, { i: i, j: j })
+        getRandomMines(gBoard, gLevel.MINES, { i: i, j: j })
         setMinesNegsCount(gBoard)
         gStartTime = Date.now()
         gInterval = setInterval(updateGameTime, 85)
@@ -149,12 +151,14 @@ function onCellClicked(elCell, i, j) {
         expandShown(i, j)
         elCell.innerHTML = ''
     }
-    // anyway reveals current cell (if found mine ending game)
+    // anyway reveals current cell 
     elCell.classList.add('shown')
     gBoard[i][j].isShown = true
     checkGameOver()
 }
 
+// This function activate when clicked on a CLEAN Spot
+// revealing all spots around it in Recursion
 function expandShown(row, col) {
     for (var i = row - 1; i <= row + 1; i++) {
         for (var j = col - 1; j <= col + 1; j++) {
@@ -165,10 +169,10 @@ function expandShown(row, col) {
                 elNegCell.classList.add('shown')
                 gBoard[i][j].isShown = true
                 gBoard[i][j].minesAroundCount = ''
-                expandShown(i, j)
+                expandShown(i, j) // recursion for all clean spots
             }
-            if (gBoard[i][j].minesAroundCount > 0){
-                var currCellIdx ={i, j}
+            if (gBoard[i][j].minesAroundCount > 0) { // for spots with a number
+                var currCellIdx = { i, j }
                 renderCell(currCellIdx, gBoard[i][j].minesAroundCount)
                 gBoard[i][j].isShown = true
                 elNegCell.classList.add('shown')
@@ -177,6 +181,7 @@ function expandShown(row, col) {
     }
 }
 
+// This function checks for win if won >> calling win() func
 function checkGameOver() {
     var countMines = 0
     var countShown = 0
@@ -195,7 +200,32 @@ function checkGameOver() {
     }
 }
 
-function getRandomMines(maxMines, board, mineFreeIdx) { // sets mines by gLevel SIZE/MINES
+// This function handels a win 
+// Stops timer, update smiley pic, update and display modal
+function win() {
+    var elWinMsg = document.querySelector('.win-msg')
+    var finishTime = (Date.now() - gStartTime) / 1000
+    var elResetBtn = document.querySelector('.reset-btn')
+    clearInterval(gInterval)
+    elResetBtn.innerHTML = '<img src="img/win.jpg" alt="">'
+    elWinMsg.innerText = `you have finish the game in: ${finishTime.toFixed(1)}s`
+    var newBestScore = checkBestScore() // for new best score >> update game + storage and return new msg
+    if (newBestScore) elWinMsg.innerText = newBestScore // adding cogratz to modal for making a new best
+    displayModal(true)
+}
+
+// This function called from smiley btn 
+// Stops timer, update smiley btn pic, and reset game 
+function playAgian() {
+    clearInterval(gInterval)
+    resetDisplayTime()
+    onInit()
+    var elResetBtn = document.querySelector('.reset-btn')
+    elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
+}
+
+// This function adding mines at random coords on the existing gBoard
+function getRandomMines(board, maxMines, mineFreeIdx) { // sets mines by gLevel SIZE/MINES
     while (maxMines > 0) { // runs until got the number of mine requested
         for (var i = 0; i < gLevel.SIZE; i++) {
             for (var j = 0; j < gLevel.SIZE; j++) {
@@ -207,34 +237,6 @@ function getRandomMines(maxMines, board, mineFreeIdx) { // sets mines by gLevel 
                 }
             }
         }
-    }
-}
-
-function win() {
-    var elWinMsg = document.querySelector('.win-msg')
-    var finishTime = (Date.now() - gStartTime) / 1000
-    elWinMsg.innerText = `you have finish the game in: ${parseInt(finishTime)}s!`
-    getWinTime() // if its new best score >> update score
-    displayModal(true)
-    clearInterval(gInterval)
-    var elResetBtn = document.querySelector('.reset-btn')
-    elResetBtn.innerHTML = '<img src="img/win.jpg" alt="">'
-}
-
-function resetGame() {
-    displayModal(false)
-    clearInterval(gInterval)
-    resetTime()
-    var elResetBtn = document.querySelector('.reset-btn')
-    elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
-    gGame.isOn = true
-    if (gLives > 0) {  // If didnt lose all lives
-        gBoard = buildBoard()
-        renderBoard(gBoard)
-    } else {
-        gBoard = buildBoard()
-        renderBoard(gBoard)
-        gLives = 3
     }
 }
 
@@ -252,6 +254,7 @@ function getMines() {
     return mines
 }
 
+// This function reveal all mines.Called when have 0 life and lost game
 function revealAllMines(minesIdx) {
     var currCell = {}
     for (var i = 0; i < minesIdx.length; i++) {
@@ -260,18 +263,8 @@ function revealAllMines(minesIdx) {
     }
 }
 
-function resetHTML() {
-    for (var i = 0; i < gLevel.SIZE; i++) {
-        for (var j = 0; j < gLevel.SIZE; j++) {
-            if (gBoard[i][j].isMine) {
-                var elCell = document.querySelector(`.cell-${i}-${j}`)
-                elCell.innerText = ''
-                if (elCell.classList.contains('shown')) elCell.classList.remove('shown')
-            }
-        }
-    }
-}
-
+// This function called to check if its the FIRST CLICK in the game
+// Checking that nothing is revealed already
 function checkShown() {
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
@@ -283,11 +276,12 @@ function checkShown() {
     return false
 }
 
-function selectMode(elBtn) { //reset the board to the mode request 
+// This fucntion reset the board to the mode requested
+function selectMode(elBtn) {
     var elResetBtn = document.querySelector('.reset-btn')
     elResetBtn.innerHTML = '<img src="img/happy.jpg" alt="">'
     clearInterval(gInterval)
-    resetTime()
+    resetDisplayTime()
     displayModal(false)
     switch (elBtn.innerText) {
         case 'Beginner(16)':
@@ -310,14 +304,15 @@ function selectMode(elBtn) { //reset the board to the mode request
     }
 }
 
+// This function calling when playing >> update timer each second 
 function updateGameTime() {
     var currTime = (Date.now() - gStartTime) / 1000
     var gameTime = document.querySelector('.game-time span')
     gameTime.innerText = (parseInt(currTime) + 's')
 }
 
-// This function reset display time to 0
-function resetTime() {
+// This function reset display time to 0s
+function resetDisplayTime() {
     var gameTime = document.querySelector('.game-time span')
     gameTime.innerText = 0 + 's'
 }
@@ -335,7 +330,7 @@ function displayModal(isDisplay) {
 function changeUserName() {
     gUserFound = false
     var nickName = prompt('Please Insert your nick name:')
-    for (var i = 0; i < gNumOfPlayers + 1; i++) {
+    for (var i = 0; i < gStorageLength + 1; i++) {
         if (localStorage.getItem('nickName:' + [i + 1]) === nickName) {
             alert(nickName + ' Welcome Back!')
             gUserFound = true
@@ -343,18 +338,19 @@ function changeUserName() {
         }
     }
     if (!gUserFound) {
-        if (!nickName) nickName = 'Guest ' + gNumOfPlayers
-        localStorage.setItem('nickName:' + gNumOfPlayers, nickName)
+        if (!nickName) nickName = 'Guest ' + gStorageLength
+        localStorage.setItem('nickName:' + gStorageLength, nickName)
         alert('Welcome to Mine Sweeper game: ' + nickName)
-        gNumOfPlayers = i
     }
+    gStorageLength = i
     var elNickName = document.querySelector('.user-name span')
     elNickName.innerText = nickName
     gCurrUserName = nickName
 }
 
-// This function return win time. If best score, updates storage and game
-function getWinTime() {
+// This function updates the game and storage: if its a new BEST score
+// Also RETURN a "new best" msg for the modal
+function checkBestScore() {
     var lvlStr = getGameLevel()
     var bestTime = localStorage.getItem(`Best-Time: ${lvlStr.lvlStr}`)
     var winTime = (Date.now() - gStartTime) / 1000
@@ -363,8 +359,11 @@ function getWinTime() {
         localStorage.setItem(`Best-player: ${lvlStr.lvlStr}`, `${gCurrUserName}`)
         var elBestScore = document.querySelector('.best-score span')
         elBestScore.innerText = winTime.toFixed(1) + 's'
+        var newBest = `you made a new Best Score!!
+        finished the game in: ${winTime.toFixed(1)}s`
+        return newBest
     }
-    return winTime
+    return null
 }
 
 // This function update the best score based on the current lvl
@@ -400,7 +399,7 @@ function getGameLevel() {
 }
 
 // This function reset lives according to the current lvl
-// also return number of max lives
+// Also update number of display lives
 function resetLives() {
     var elLives = document.querySelector('.lives span')
     switch (gLevel.SIZE) {
@@ -433,24 +432,39 @@ function darkModeToggle() {
     }
 }
 
-function bestScoreDisplay(){                           // Edit later!!!
+function bestScoreDisplay() {
     var begName = localStorage.getItem('Best-player: Beg')
     var begScore = localStorage.getItem('Best-Time: Beg')
     var medName = localStorage.getItem('Best-player: Med')
     var medScore = localStorage.getItem('Best-Time: Med')
     var expName = localStorage.getItem('Best-player: Exp')
     var exptScore = localStorage.getItem('Best-Time: Exp')
-    var scoreArray = [begName, begScore, medName, medScore, expName, exptScore]
-    for (var i = 0; i < scoreArray.length; i++){
-        if (!scoreArray[i]) scoreArray[i] = 'None'
-        // console.log(111)
+
+    var storageInfo = [begName, begScore, medName, medScore, expName, exptScore]
+
+    for (var i = 0; i < storageInfo.length; i++) {
+        if (!storageInfo[i]) storageInfo[i] = 'None'
     }
+
     alert(`Score-Board:
-    Best-player: Beginner - ${begName}
-    Best-Score: Beginner - ${begScore}
-    Best-player: Medium - ${medName}
-    Best-Score: Medium - ${medScore}
-    Best-player: Expert - ${expName}
-    Best-Score: Expert - ${exptScore}
+    Best-player: Beginner - ${storageInfo[0]}
+    Best-Score: Beginner - ${storageInfo[1]}
+    Best-player: Medium - ${storageInfo[2]}
+    Best-Score: Medium - ${storageInfo[3]}
+    Best-player: Expert - ${storageInfo[4]}
+    Best-Score: Expert - ${storageInfo[5]}
     `)
 }
+
+
+// function resetHTML() {
+//     for (var i = 0; i < gLevel.SIZE; i++) {
+//         for (var j = 0; j < gLevel.SIZE; j++) {
+//             if (gBoard[i][j].isMine) {
+//                 var elCell = document.querySelector(`.cell-${i}-${j}`)
+//                 elCell.innerText = ''
+//                 if (elCell.classList.contains('shown')) elCell.classList.remove('shown')
+//             }
+//         }
+//     }
+// }
