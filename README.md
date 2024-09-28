@@ -19,7 +19,9 @@ This is a web-based version of the Minesweeper game where players uncover cells 
 5. Use the numbers on revealed cells to deduce the location of nearby mines.
 6. Clear all non-mine cells and correctly flag all mines to win.
 
-## 👤 Author
-- **Zohar Ifrah**
+## Author
+
+**Zohar Ifrah** – Full-Stack Developer  
+[LinkedIn](https://www.linkedin.com/in/zohar-ifrah)
 
 Enjoy the game and have fun!
